@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <title>Contagem Regressiva — Disney (24/01/2026 03:55 BRT)</title>
+  <style>
+    :root{
+      --bg1: #030712;
+      --bg2: #0b1220;
+      --card: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.12);
+      --txt: #e5e7eb;
+      --accent: #38bdf8;
+      --muted: #9ca3af;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--txt);
+      background: radial-gradient(1200px 600px at 20% 10%, #0f172a 0%, var(--bg2) 40%, var(--bg1) 100%);
+      display:grid; place-items:center;
+    }
+    .wrap{
+      width:min(980px, 92vw);
+      padding: clamp(16px, 4vw, 36px);
+      text-align:center;
+    }
+    h1{
+      margin: 0 0 6px; font-weight: 800; letter-spacing:.5px;
+      font-size: clamp(24px, 3.6vw, 44px);
+    }
+    .subtitle{ color: var(--muted); margin: 0 0 22px; font-size: clamp(14px, 2.2vw, 18px); }
+
+    .board{
+      display:grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: clamp(10px, 2.5vw, 16px);
+      margin: 18px auto 10px;
+    }
+    .tile{
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px; backdrop-filter: blur(6px);
+      padding: clamp(14px, 2.8vw, 22px); box-shadow: var(--shadow);
+    }
+    .num{
+      font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;
+      font-size: clamp(34px, 7vw, 64px); font-weight: 800; line-height: 1;
+    }
+    .label{ margin-top: 6px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-size: clamp(10px, 1.6vw, 12px); }
+    #message{ margin-top: 10px; font-size: clamp(14px, 2.3vw, 18px); color: var(--accent); font-weight: 700; }
+
+    .when{
+      display:flex; flex-direction: column; gap: 6px; align-items:center; margin-top:14px; color: var(--muted);
+      font-size: clamp(12px, 2vw, 14px);
+    }
+    .when strong{ color: var(--txt); }
+
+    .chip{
+      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius: 999px; background: var(--card);
+      margin-top: 14px; font-size: 13px; color: var(--muted);
+    }
+    .chip svg{ width:18px; height:18px; fill: currentColor; opacity:.85; }
+
+    footer{ margin-top: 24px; color: var(--muted); font-size: 12px; }
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="chip" aria-hidden="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16.5c0 .83.67 1.5 1.5 1.5H10l2 2 2-2h6.5c.83 0 1.5-.67 1.5-1.5 0-.34-.12-.67-.33-.93l-2.84-3.55a3 3 0 0 0-2.34-1.12H14l-1.72-3.45A2 2 0 0 0 10.45 6H7.5L6.41 4.41A1 1 0 0 0 5.62 4H3a1 1 0 1 0 0 2h2.05l2.1 3.15.01.01.84 1.26H4.5A2.5 2.5 0 0 0 2 12.92v3.58z"/></svg>
+      <span>Rumo à Disney!</span>
+    </div>
+
+    <h1>Contagem Regressiva para o Voo ✈️🏰</h1>
+    <p class="subtitle">Partida do Brasil em <strong>24/01/2026 às 03:55</strong> — referência: Fortaleza (UTC−03:00)</p>
+
+    <section class="board" aria-label="Contagem regressiva" aria-live="polite">
+      <div class="tile"><div id="days" class="num">—</div><div class="label">dias</div></div>
+      <div class="tile"><div id="hours" class="num">—</div><div class="label">horas</div></div>
+      <div class="tile"><div id="mins" class="num">—</div><div class="label">minutos</div></div>
+      <div class="tile"><div id="secs" class="num">—</div><div class="label">segundos</div></div>
+    </section>
+
+    <div id="message" role="status"></div>
+
+    <div class="when">
+      <div><strong>Horário do voo (Fortaleza/Brasil):</strong> <span id="timeFortaleza">—</span></div>
+      <div><strong>No seu fuso atual:</strong> <span id="timeLocal">—</span></div>
+    </div>
+
+    <footer>
+      Feito com ❤️ para acompanhar a ansiedade da viagem. Salve como <code>index.html</code> e abra no navegador.
+    </footer>
+  </main>
+
+  <script>
+    // === CONFIGURAÇÃO DO ALVO ===
+    // Data/hora exatas do voo em Fortaleza (sem horário de verão): UTC-03:00
+    const TARGET_ISO = "2026-01-24T03:55:00-03:00"; // 24/01/2026 03:55 (Brasil, America/Fortaleza)
+    const TARGET = new Date(TARGET_ISO);
+
+    // Formatações
+    const fmtFortaleza = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full', timeStyle: 'short', timeZone: 'America/Fortaleza' });
+    const fmtLocal = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full', timeStyle: 'short' }); // fuso do usuário
+
+    // Elementos
+    const el = {
+      d: document.getElementById('days'),
+      h: document.getElementById('hours'),
+      m: document.getElementById('mins'),
+      s: document.getElementById('secs'),
+      msg: document.getElementById('message'),
+      fort: document.getElementById('timeFortaleza'),
+      local: document.getElementById('timeLocal')
+    };
+
+    function two(n){ return String(n).padStart(2, '0'); }
+
+    function updateHeaderTimes(){
+      el.fort.textContent = `${fmtFortaleza.format(TARGET)} (America/Fortaleza)`;
+      el.local.textContent = `${fmtLocal.format(TARGET)} (seu fuso)`;
+    }
+
+    function updateCountdown(){
+      const now = new Date();
+      const diffMs = TARGET.getTime() - now.getTime();
+
+      if (diffMs <= 0){
+        el.d.textContent = '00';
+        el.h.textContent = '00';
+        el.m.textContent = '00';
+        el.s.textContent = '00';
+        el.msg.textContent = 'Boa viagem! ✈️ É hora de embarcar!';
+        document.title = '✈️ Partiu Disney!';
+        clearInterval(timer);
+        return;
+      }
+
+      const totalSec = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const minutes = Math.floor((totalSec % 3600) / 60);
+      const seconds = totalSec % 60;
+
+      el.d.textContent = String(days);
+      el.h.textContent = two(hours);
+      el.m.textContent = two(minutes);
+      el.s.textContent = two(seconds);
+
+      // Atualiza título da aba para ver no navegador/desktop
+      document.title = `Faltam ${days}d ${two(hours)}h ${two(minutes)}m — Partida 24/01/2026 03:55 (BRT)`;
+    }
+
+    updateHeaderTimes();
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+
+    // Acessibilidade: se o usuário reduzir movimento, evitamos animações (não usamos aqui, mas fica como exemplo)
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  </script>
+</body>
+</html>
